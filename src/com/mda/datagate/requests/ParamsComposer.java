@@ -4,9 +4,10 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 public class ParamsComposer {
-    private static final String BRACE_LEFT = URLEncoder.encode("{");
-    private static final String BRACE_RIGHT = URLEncoder.encode("}");
-    private static final String QUOTE = URLEncoder.encode("\"");
+//    private static final String EQUAL = URLEncoder.encode("=");
+//    private static final String AND = URLEncoder.encode("&");
+    private static final String EQUAL = "=";
+    private static final String AND = "&";
 
     public static String compose(Map<String, String> pathParams) {
         if (pathParams == null || pathParams.isEmpty()) {
@@ -14,24 +15,14 @@ public class ParamsComposer {
         }
 
         StringBuilder buff = new StringBuilder();
-        buff.append("/?request=").append(BRACE_LEFT);
-        boolean removeComma = false;
         for (Map.Entry<String, String> entry : pathParams.entrySet()) {
             if (entry.getValue() == null) {
                 continue;
             }
-            removeComma = true;
             String key = URLEncoder.encode(entry.getKey());
             String value = URLEncoder.encode(entry.getValue());
-            buff.append(QUOTE).append(key).append(QUOTE).append(":").append(QUOTE).append(value).append(QUOTE).append(",");
+            buff.append(key).append(EQUAL).append(value).append(AND);
         }
-
-        if (removeComma) {
-            int len = buff.length();
-            buff.delete(len - 1, len);
-        }
-
-        buff.append(BRACE_RIGHT);
 
         return buff.toString();
     }
