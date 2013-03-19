@@ -11,6 +11,8 @@ public abstract class GetRequest<T> extends AbstractRequest<T> {
 
     @Override
     protected HttpRequestBase createHttpRequest(String url) {
-        return new HttpGet(url);
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", "application/json");
+        return httpGet;
     }
 }

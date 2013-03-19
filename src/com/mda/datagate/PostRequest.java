@@ -1,6 +1,7 @@
 package com.mda.datagate;
 
 import android.content.Context;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 
@@ -11,6 +12,8 @@ public abstract class PostRequest<T> extends AbstractRequest<T> {
 
     @Override
     protected HttpRequestBase createHttpRequest(String url) {
-        return new HttpPost(url);
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("Accept", "application/json");
+        return httpPost;
     }
 }
