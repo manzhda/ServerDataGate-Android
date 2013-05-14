@@ -49,6 +49,8 @@ public class Controller {
 
             switch (response.getStatusCode()) {
                 case HttpStatus.SC_OK:
+                case HttpStatus.SC_CREATED:
+                case HttpStatus.SC_UNPROCESSABLE_ENTITY:
                     Object data = request.parse(response.getResponseString());
                     return new RequestResponseContainer(request, new Response(Status.OK, data));
 
