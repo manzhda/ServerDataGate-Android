@@ -50,12 +50,14 @@ public class Controller {
             switch (response.getStatusCode()) {
                 case HttpStatus.SC_OK:
                 case HttpStatus.SC_CREATED:
-                case HttpStatus.SC_UNPROCESSABLE_ENTITY:
+                case HttpStatus.SC_UNPROCESSABLE_ENTITY: {
                     Object data = request.parse(response.getResponseString());
                     return new RequestResponseContainer(request, new Response(Status.OK, data));
+                }
 
                 case HttpStatus.SC_UNAUTHORIZED:
-                    return new RequestResponseContainer(request, new Response(Status.NOT_AUTHORITY));
+                    Object data = request.parse(response.getResponseString());
+                    return new RequestResponseContainer(request, new Response(Status.NOT_AUTHORITY, data));
 
                 default:
                     return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
