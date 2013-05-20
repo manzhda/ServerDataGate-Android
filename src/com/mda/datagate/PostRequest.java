@@ -1,7 +1,6 @@
 package com.mda.datagate;
 
 import android.content.Context;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 

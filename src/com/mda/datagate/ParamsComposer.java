@@ -1,4 +1,4 @@
-package com.mda.datagate.requests;
+package com.mda.datagate;
 
 import java.net.URLEncoder;
 import java.util.Map;
