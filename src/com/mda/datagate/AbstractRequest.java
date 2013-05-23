@@ -1,6 +1,7 @@
 package com.mda.datagate;
 
 import android.content.Context;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.json.JSONException;
 
@@ -10,6 +11,8 @@ import java.util.Map;
 public abstract class AbstractRequest<T> {
     private final Context mContext;
     private NetCommandListener mListener;
+    private HttpRequestBase mHttpRequest;
+    private HttpClient mHttpClient;
 
     protected AbstractRequest(Context context, NetCommandListener listener) {
         mContext = context;
@@ -39,8 +42,20 @@ public abstract class AbstractRequest<T> {
     public abstract T parse(String responseString) throws JSONException;
 
     public HttpRequestBase getHttpRequest() {
+        if (mHttpRequest != null) {
+            return mHttpRequest;
+        }
+
         String path = getPath();
-        HttpRequestBase httpRequest = createHttpRequest(path);
-        return httpRequest;
+        mHttpRequest = createHttpRequest(path);
+        return mHttpRequest;
+    }
+
+    HttpClient getHttpClient() {
+        return mHttpClient;
+    }
+
+    void setHttpClient(HttpClient httpClient) {
+        mHttpClient = httpClient;
     }
 }
