@@ -1,8 +1,5 @@
 package com.mda.datagate;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import com.mda.datagate.utils.MyLog;
 import org.apache.http.HttpStatus;
@@ -10,26 +7,51 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
 
 public class Controller {
     private static final String TAG = Controller.class.getSimpleName();
 
-    private Controller() {
+    private final Collection<AbstractRequest> mRequests = new LinkedList<AbstractRequest>();
+
+    public void callRequest(AbstractRequest request) {
+        mRequests.add(request);
+        makeRequest(request);
     }
 
-    public static void callRequest(AbstractRequest request) {
+    public void stopAllRequests() {
+        for (AbstractRequest request : mRequests) {
+            abortRequest(request);
+        }
+        mRequests.clear();
+    }
+
+    public void stopRequest(AbstractRequest request) {
+        abortRequest(request);
+        mRequests.remove(request);
+    }
+
+    private void abortRequest(AbstractRequest request) {
+        request.getHttpRequest().abort();
+        if (request.getHttpClient() != null) {
+            request.getHttpClient().getConnectionManager().shutdown();
+        }
+    }
+
+    public void makeRequest(AbstractRequest request) {
         RequestAsyncTask task = new RequestAsyncTask();
         task.execute(request);
     }
 
-    private static class RequestAsyncTask extends AsyncTask<AbstractRequest, Void, RequestResponseContainer> {
+    private class RequestAsyncTask extends AsyncTask<AbstractRequest, Void, RequestResponseContainer> {
         @Override
         protected RequestResponseContainer doInBackground(AbstractRequest... requests) {
-            if (!isInternetPresent(requests[0].getContext())) {
+            if (!DataGate.isInternetPresent(requests[0].getContext())) {
                 return new RequestResponseContainer(requests[0],
                         new Response(com.mda.datagate.Status.NO_INTERNET_CONNECTION));
             }
-            return Controller.execute(requests[0]);
+            return Controller.this.execute(requests[0]);
         }
 
         @Override
@@ -50,7 +72,7 @@ public class Controller {
         }
     }
 
-    static RequestResponseContainer execute(AbstractRequest request) {
+    RequestResponseContainer execute(AbstractRequest request) {
         try {
             DataGateResponse response = getResponse(request);
 
@@ -70,33 +92,30 @@ public class Controller {
                     return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
             }
         } catch (HttpHostConnectException ex) {
-            ex.printStackTrace();
-            return new RequestResponseContainer(request, new Response(Status.NO_INTERNET_CONNECTION));
+            HttpRequestBase httpRequest = request.getHttpRequest();
+            MyLog.vt(TAG, "Request aborted: ", httpRequest.getMethod(), httpRequest.getURI());
+            return new RequestResponseContainer(request, new Response(Status.REQUEST_ABORTED));
+        } catch (IOException ex) {
+            HttpRequestBase httpRequest = request.getHttpRequest();
+            MyLog.vt(TAG, "Request aborted: ", httpRequest.getMethod(), httpRequest.getURI());
+            return new RequestResponseContainer(request, new Response(Status.REQUEST_ABORTED));
         } catch (Exception e) {
             e.printStackTrace();
             return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
         }
     }
 
-    private static DataGateResponse getResponse(AbstractRequest request) throws IOException {
+    private DataGateResponse getResponse(AbstractRequest request) throws IOException {
         HttpRequestBase httpRequest = request.getHttpRequest();
         MyLog.vt(TAG, "Call request: ", httpRequest.getMethod(), httpRequest.getURI());
 
-        DataGateResponse response = DataGate.request(httpRequest);
+        DataGateResponse response = DataGate.request(request, httpRequest);
         MyLog.vt(TAG, "Request: ", httpRequest.getMethod(), httpRequest.getURI());
         MyLog.vt(TAG, "Response status code:", response.getStatusCode());
         MyLog.vt(TAG, "Response:", response.getResponseString());
 
+        mRequests.remove(request);
+
         return response;
-    }
-
-    public static boolean isInternetPresent(Context context) {
-        ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = conMgr.getActiveNetworkInfo();
-        return !(info == null || !info.isConnected() || !info.isAvailable());
-    }
-
-    public static interface AsyncTaskCallback {
-        public void done(AbstractRequest request, Response response);
     }
 }

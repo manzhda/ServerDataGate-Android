@@ -1,5 +1,8 @@
 package com.mda.datagate;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -19,8 +22,8 @@ public class DataGate {
     private DataGate() {
     }
 
-    public static DataGateResponse request(HttpRequestBase httpRequest) throws IOException {
-        HttpResponse httpResponse = execute(httpRequest);
+    public static DataGateResponse request(AbstractRequest request, HttpRequestBase httpRequest) throws IOException {
+        HttpResponse httpResponse = execute(request, httpRequest);
 
         String responseString = getResponseString(httpResponse);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -28,13 +31,13 @@ public class DataGate {
         return dataGateResponse;
     }
 
-    private static HttpResponse execute (HttpRequestBase request) throws IOException {
+    private static HttpResponse execute (AbstractRequest request, HttpRequestBase httpRequest) throws IOException {
         HttpParams httpParameters = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParameters, mConnectionTimeout);
         HttpConnectionParams.setSoTimeout(httpParameters, mSoTimeout);
         DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
-
-        HttpResponse httpResponse = httpClient.execute(request);
+        request.setHttpClient(httpClient);
+        HttpResponse httpResponse = httpClient.execute(httpRequest);
         return httpResponse;
     }
 
@@ -52,5 +55,11 @@ public class DataGate {
 
         String responseString = responseSB.toString().trim();
         return responseString;
+    }
+
+    public static boolean isInternetPresent(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+        return !(info == null || !info.isConnected() || !info.isAvailable());
     }
 }
