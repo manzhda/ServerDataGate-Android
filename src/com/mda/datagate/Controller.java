@@ -17,17 +17,12 @@ public class Controller {
     private Controller() {
     }
 
-    public static AsyncTask<AbstractRequest, Void, RequestResponseContainer> makeRequest(AsyncTaskCallback callback, AbstractRequest request) {
-        return new RequestAsyncTask(callback).execute(request);
+    public static void callRequest(AbstractRequest request) {
+        RequestAsyncTask task = new RequestAsyncTask();
+        task.execute(request);
     }
 
     private static class RequestAsyncTask extends AsyncTask<AbstractRequest, Void, RequestResponseContainer> {
-        private AsyncTaskCallback mCallback;
-
-        RequestAsyncTask(AsyncTaskCallback callback) {
-            mCallback = callback;
-        }
-
         @Override
         protected RequestResponseContainer doInBackground(AbstractRequest... requests) {
             if (!isInternetPresent(requests[0].getContext())) {
@@ -39,7 +34,19 @@ public class Controller {
 
         @Override
         protected void onPostExecute(RequestResponseContainer result) {
-            mCallback.done(result.getRequest(), result.getResponse());
+            AbstractRequest request = result.getRequest();
+            Response response = result.getResponse();
+            com.mda.datagate.Status responseCode = response.getCode();
+            NetCommandListener listener = request.getListener();
+            if (listener == null) {
+                return;
+            }
+
+            if (responseCode == com.mda.datagate.Status.OK) {
+                listener.onComplete(request, response.getData());
+            } else {
+                listener.onError(responseCode, response.getData());
+            }
         }
     }
 
