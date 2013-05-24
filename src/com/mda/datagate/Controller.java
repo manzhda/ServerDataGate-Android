@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import com.mda.datagate.utils.MyLog;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.IOException;
@@ -91,6 +92,9 @@ public class Controller {
                 default:
                     return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
             }
+        } catch (ConnectTimeoutException e) {
+            e.printStackTrace();
+            return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
         } catch (HttpHostConnectException ex) {
             HttpRequestBase httpRequest = request.getHttpRequest();
             MyLog.vt(TAG, "Request aborted: ", httpRequest.getMethod(), httpRequest.getURI());
