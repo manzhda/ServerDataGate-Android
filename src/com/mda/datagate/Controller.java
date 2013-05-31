@@ -8,6 +8,7 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -93,6 +94,9 @@ public class Controller {
                     return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
             }
         } catch (ConnectTimeoutException e) {
+            e.printStackTrace();
+            return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
+        } catch (SocketTimeoutException e) {
             e.printStackTrace();
             return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
         } catch (HttpHostConnectException ex) {
