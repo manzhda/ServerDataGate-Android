@@ -95,10 +95,10 @@ public class Controller {
             }
         } catch (ConnectTimeoutException e) {
             e.printStackTrace();
-            return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
+            return new RequestResponseContainer(request, new Response(Status.CONNECTION_TIMEOUT));
         } catch (SocketTimeoutException e) {
             e.printStackTrace();
-            return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
+            return new RequestResponseContainer(request, new Response(Status.CONNECTION_TIMEOUT));
         } catch (HttpHostConnectException ex) {
             HttpRequestBase httpRequest = request.getHttpRequest();
             MyLog.vt(TAG, "Request aborted: ", httpRequest.getMethod(), httpRequest.getURI());

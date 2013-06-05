@@ -7,7 +7,8 @@ public enum Status {
     NOT_AUTHORITY,
     DATA_UNAVAILABLE,
     NO_INTERNET_CONNECTION,
-    REQUEST_ABORTED;
+    REQUEST_ABORTED,
+    CONNECTION_TIMEOUT;
 
     public static Status getWorst(Collection<Status> statuses) {
         if (statuses.contains(NO_INTERNET_CONNECTION)) {
