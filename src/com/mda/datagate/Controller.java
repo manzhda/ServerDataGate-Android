@@ -1,6 +1,5 @@
 package com.mda.datagate;
 
-import android.os.AsyncTask;
 import com.mda.datagate.utils.MyLog;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -9,72 +8,11 @@ import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.Collection;
-import java.util.LinkedList;
 
 public class Controller {
     private static final String TAG = Controller.class.getSimpleName();
 
-    private final Collection<AbstractRequest> mRequests = new LinkedList<AbstractRequest>();
-
-    public void callRequest(AbstractRequest request) {
-        mRequests.add(request);
-        makeRequest(request);
-    }
-
-    public void stopAllRequests() {
-        for (AbstractRequest request : mRequests) {
-            abortRequest(request);
-        }
-        mRequests.clear();
-    }
-
-    public void stopRequest(AbstractRequest request) {
-        abortRequest(request);
-        mRequests.remove(request);
-    }
-
-    private void abortRequest(AbstractRequest request) {
-        request.getHttpRequest().abort();
-        if (request.getHttpClient() != null) {
-            request.getHttpClient().getConnectionManager().shutdown();
-        }
-    }
-
-    public void makeRequest(AbstractRequest request) {
-        RequestAsyncTask task = new RequestAsyncTask();
-        task.execute(request);
-    }
-
-    private class RequestAsyncTask extends AsyncTask<AbstractRequest, Void, RequestResponseContainer> {
-        @Override
-        protected RequestResponseContainer doInBackground(AbstractRequest... requests) {
-            if (!DataGate.isInternetPresent(requests[0].getContext())) {
-                return new RequestResponseContainer(requests[0],
-                        new Response(com.mda.datagate.Status.NO_INTERNET_CONNECTION));
-            }
-            return Controller.this.execute(requests[0]);
-        }
-
-        @Override
-        protected void onPostExecute(RequestResponseContainer result) {
-            AbstractRequest request = result.getRequest();
-            Response response = result.getResponse();
-            com.mda.datagate.Status responseCode = response.getCode();
-            NetCommandListener listener = request.getListener();
-            if (listener == null) {
-                return;
-            }
-
-            if (responseCode == com.mda.datagate.Status.OK) {
-                listener.onComplete(request, response.getData());
-            } else {
-                listener.onError(responseCode, response.getData());
-            }
-        }
-    }
-
-    RequestResponseContainer execute(AbstractRequest request) {
+    public static RequestResponseContainer execute(AbstractRequest request) {
         try {
             DataGateResponse response = getResponse(request);
 
@@ -113,7 +51,7 @@ public class Controller {
         }
     }
 
-    private DataGateResponse getResponse(AbstractRequest request) throws IOException {
+    private static DataGateResponse getResponse(AbstractRequest request) throws IOException {
         HttpRequestBase httpRequest = request.getHttpRequest();
         MyLog.vt(TAG, "Call request: ", httpRequest.getMethod(), httpRequest.getURI());
 
@@ -122,7 +60,10 @@ public class Controller {
         MyLog.vt(TAG, "Response status code:", response.getStatusCode());
         MyLog.vt(TAG, "Response:", response.getResponseString());
 
-        mRequests.remove(request);
+        RequestAborter requestAborter = request.getRequestAborter();
+        if (requestAborter != null) {
+            requestAborter.remove(request);
+        }
 
         return response;
     }
