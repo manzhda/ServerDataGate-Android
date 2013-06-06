@@ -1,6 +1,8 @@
-package com.mda.datagate;
+package com.mda.datagate.requests;
 
 import android.content.Context;
+import com.mda.datagate.AbstractRequest;
+import com.mda.datagate.NetCommandListener;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 

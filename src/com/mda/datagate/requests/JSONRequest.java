@@ -1,6 +1,9 @@
-package com.mda.datagate;
+package com.mda.datagate.requests;
 
 import android.content.Context;
+import com.mda.datagate.AbstractRequest;
+import com.mda.datagate.Controller;
+import com.mda.datagate.NetCommandListener;
 import com.mda.datagate.utils.MyLog;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
