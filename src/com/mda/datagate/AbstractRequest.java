@@ -26,6 +26,11 @@ public abstract class AbstractRequest<T> implements Request {
     }
 
     @Override
+    public boolean isNeedReturnHeader() {
+        return false;
+    }
+
+    @Override
     public NetCommandListener getListener() {
         return mListener;
     }
@@ -77,34 +82,11 @@ public abstract class AbstractRequest<T> implements Request {
 
     @Override
     public void call() {
-        RequestAsyncTask task = new RequestAsyncTask();
-        task.execute(this);
+       RequestExecuter.executeRequest(this);
     }
 
-    private static class RequestAsyncTask extends AsyncTask<AbstractRequest, Void, RequestResponseContainer> {
-        @Override
-        protected RequestResponseContainer doInBackground(AbstractRequest... requests) {
-            if (!DataGate.isInternetPresent(requests[0].getContext())) {
-                return new RequestResponseContainer(requests[0],
-                        new Response(com.mda.datagate.Status.NO_INTERNET_CONNECTION));
-            }
-            return Controller.execute(requests[0]);
-        }
-
-        @Override
-        protected void onPostExecute(RequestResponseContainer result) {
-            AbstractRequest request = result.getRequest();
-            Response response = result.getResponse();
-            com.mda.datagate.Status responseCode = response.getCode();
-
-            NetCommandListener listener = request.getListener();
-            if (listener != null) {
-                if (responseCode == com.mda.datagate.Status.OK) {
-                    listener.onComplete(request, response.getData());
-                } else {
-                    listener.onError(responseCode, response.getData());
-                }
-            }
-        }
+    @Override
+    public boolean needToRetry() {
+        return false;
     }
 }

@@ -38,4 +38,14 @@ public abstract class MultiRequest implements Request {
             request.abort();
         }
     }
+
+    @Override
+    public boolean isNeedReturnHeader() {
+        return false;
+    }
+
+    @Override
+    public boolean needToRetry() {
+        return false;
+    }
 }

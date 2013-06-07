@@ -1,8 +1,11 @@
 package com.mda.datagate;
 
+import java.util.HashMap;
+
 public class RequestResponseContainer {
     AbstractRequest mRequest;
     Response mResponse;
+    HashMap<String, String> mHeadersList;
 
     public RequestResponseContainer(AbstractRequest request, Response response) {
         mRequest = request;
@@ -16,4 +19,13 @@ public class RequestResponseContainer {
     public Response getResponse() {
         return mResponse;
     }
+
+    public HashMap<String, String> getHeadersList() {
+        return mHeadersList;
+    }
+
+    public void setHeadersList(HashMap<String, String> headersList) {
+        mHeadersList = headersList;
+    }
+
 }

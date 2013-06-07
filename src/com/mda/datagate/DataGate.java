@@ -28,6 +28,7 @@ public class DataGate {
         String responseString = getResponseString(httpResponse);
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         DataGateResponse dataGateResponse = new DataGateResponse(statusCode, responseString);
+        if(request.isNeedReturnHeader())dataGateResponse.setHeadersList(httpResponse.getAllHeaders());
         return dataGateResponse;
     }
 

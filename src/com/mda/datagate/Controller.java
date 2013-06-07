@@ -23,6 +23,13 @@ public class Controller {
                     Object data = request.parse(response.getResponseString());
                     return new RequestResponseContainer(request, new Response(Status.OK, data));
                 }
+                case HttpStatus.SC_ACCEPTED:
+                  Object data_accepted = request.parse(response.getResponseString());
+                  RequestResponseContainer rrc = new RequestResponseContainer(request, new Response(Status.ACCEPTED, data_accepted));
+                  if(response.getHeadersList()!=null) {
+                      rrc.setHeadersList(response.getHeadersList());
+                  }
+                 return rrc;
 
                 case HttpStatus.SC_UNAUTHORIZED:
                     Object data = request.parse(response.getResponseString());
