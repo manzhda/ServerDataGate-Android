@@ -70,7 +70,7 @@ public class RequestExecuter {
                     return result;
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     return new RequestResponseContainer(request, new Response(com.mda.datagate.Status.DATA_UNAVAILABLE));
                 }
