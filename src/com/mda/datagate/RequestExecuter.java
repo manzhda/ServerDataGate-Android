@@ -64,6 +64,7 @@ public class RequestExecuter {
             int retry = 10;
 
             do{
+                if(request.isAborted()) break;
                 RequestResponseContainer result = Controller.execute(request);
                 count++;
                 if(com.mda.datagate.Status.OK == result.getResponse().getCode()){

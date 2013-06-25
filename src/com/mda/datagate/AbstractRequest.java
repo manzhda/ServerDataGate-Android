@@ -15,6 +15,7 @@ public abstract class AbstractRequest<T> implements Request {
     private HttpClient mHttpClient;
     private NetCommandListener mListener;
     private RequestAborter mRequestAborter;
+    private boolean isAborted = false;
 
     protected AbstractRequest(Context context, NetCommandListener listener) {
         mContext = context;
@@ -75,9 +76,13 @@ public abstract class AbstractRequest<T> implements Request {
     @Override
     public void abort() {
         getHttpRequest().abort();
+        isAborted = true;
         if (mHttpClient != null) {
             mHttpClient.getConnectionManager().shutdown();
         }
+    }
+    public boolean isAborted(){
+        return isAborted;
     }
 
     @Override
