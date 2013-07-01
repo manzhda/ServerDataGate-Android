@@ -1,10 +1,8 @@
 package com.mda.datagate;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +55,7 @@ public abstract class AbstractRequest<T> implements Request {
         return new HashMap<String, String>();
     }
 
-    public abstract T parse(String responseString) throws JSONException;
+    public abstract T parse(String responseString) throws Exception;
 
     public HttpRequestBase getHttpRequest() {
         if (mHttpRequest != null) {
