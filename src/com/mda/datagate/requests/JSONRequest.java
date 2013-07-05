@@ -53,7 +53,7 @@ public abstract class JSONRequest<T> extends AbstractRequest<T> {
         return httpRequest;
     }
 
-    private void addJsonEntity(HttpEntityEnclosingRequest httpRequest) {
+    protected void addJsonEntity(HttpEntityEnclosingRequest httpRequest){
         JSONObject body = getJsonBody();
 
         if (body == null) {
