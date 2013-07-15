@@ -32,14 +32,8 @@ public class Controller {
                     return rrc;
 
                 case HttpStatus.SC_UNAUTHORIZED:
-                    try {
-                        Object data = request.parse(response.getResponseString());
-                        return new RequestResponseContainer(request, new Response(Status.NOT_AUTHORITY, data));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return new RequestResponseContainer(request, new Response(Status.NOT_AUTHORITY));
-
+                    Object data = request.parse(response.getResponseString());
+                    return new RequestResponseContainer(request, new Response(Status.NOT_AUTHORITY, data));
                 default:
                     return new RequestResponseContainer(request, new Response(Status.DATA_UNAVAILABLE));
             }
